@@ -1,0 +1,15 @@
+Smarterbase
+=======
+
+Use this service hook to selectively update tickets with comments based on GitHub commit messages and issue updates.
+
+In order to update a Smarterbase ticket, all you need to do is to configure and enable this hook, and then subsequently reference the ticket you want updated with the GitHub status. The format of the ticket reference is SB#123 where 123 is the id of the ticket. Only commits/comments containing a valid SB ticket reference are sent to Smarterbase.
+
+Install Notes
+-------------
+
+  1. The subdomain is your Smarterbase subdomain, i.e. "subdomain" if you visit http://subdomain.smarterbase.com  
+
+  2. Username is the email address of the user you wish to authenticate as
+
+  3. Password is the password of the user
