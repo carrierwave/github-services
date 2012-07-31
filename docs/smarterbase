@@ -8,7 +8,8 @@ In order to update a Smarterbase ticket, all you need to do is to configure and 
 Install Notes
 -------------
 
-  1. The subdomain is your Smarterbase subdomain, i.e. "subdomain" if you visit http://subdomain.smarterbase.com  
+  1. The subdomain is your Smarterbase subdomain, i.e. "subdomain" if you visit http://subdomain.smarterbase.com or
+  in the case of non-GAE deployment on http:///www.customer.com it will be, i.e. "customer.com"
 
   2. Username is the email address of the user you wish to authenticate as
 
