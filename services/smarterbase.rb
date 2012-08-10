@@ -1,20 +1,22 @@
+require 'oauth'
+
 class Service::Smarterbase < Service
   default_events :commit_comment, :issues, :issue_comment
-  string   :subdomain, :username
-  password :password
-  white_list :subdomain, :username
+  string   :subdomain, :consumer_key, :consumer_secret
+  white_list :subdomain, :consumer_key, :consumer_secret
  
   def invalid_request?
-    data['username'].to_s.empty? or
-        data['password'].to_s.empty? or
-        data['subdomain'].to_s.empty?
+    puts data
+    data['subdomain'].to_s.empty? or
+        data['consumer_key'].to_s.empty? or
+        data['consumer_secret'].to_s.empty?
   end
 
-  def service_url(subdomain)
+  def full_url(subdomain, path='')
     if subdomain =~ /\./
-      url = "http://#{subdomain}/external/github"
+      url = "http://#{subdomain}/#{path}"
     else
-      url = "http://#{subdomain}.smarterbase.com/external/github"
+      url = "http://#{subdomain}.smarterbase.com/#{path}"
     end
 
     begin
@@ -24,21 +26,29 @@ class Service::Smarterbase < Service
     end
 
     url
+
+  end
+
+  def service_url(subdomain)
+    full_url(subdomain, 'external/github')
   end
 
   def receive_event
-    raise_config_error "Bad configuration" if invalid_request?
-    puts event.to_s
-    http.headers['X-GitHub-Event'] = event.to_s
-
-    url = service_url(data['subdomain'])
-    res = http_post(url, { :payload => payload,
-                           :subdomain => data['subdomain'],
-                           :username => data['username'],
-                           :password => data['password'] }.to_json)
     
-    unless res.status.to_s[/2\d+/]
-      raise_config_error("Unexpected response code:#{res.status}")
+    consumer = OAuth::Consumer.new(data['consumer_key'], data['consumer_secret'],
+     :site => full_url(data['subdomain']), :http_method => :get, :scheme => :query_string)
+
+    access_token = OAuth::AccessToken.new(consumer)
+ 
+    raise_config_error "Bad configuration" if invalid_request?
+    
+    url = service_url(data['subdomain'])
+    res = access_token.post(url, { :payload => payload.to_json,
+                           :subdomain => data['subdomain'],
+                           :event => event.to_s })
+    
+    unless res.code.to_s[/2\d+/]
+      raise_config_error("Unexpected response code:#{res.code}")
     end
   end
 end
